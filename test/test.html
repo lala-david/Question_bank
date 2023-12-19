@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>문제 풀기</title>
+    <link rel="stylesheet" type="text/css" href="../src/style/styles.css">
+    <style>
+     
+
+        input[type='checkbox'] {
+            display: none;
+        }
+
+        label {
+            display: block;
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        label:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 25px;
+            height: 25px;
+            border: 1px solid #000;
+        }
+
+        input[type='checkbox']:checked+label:before {
+            content: '✔';
+            text-align: center;
+            line-height: 25px;
+            font-size: 20px;
+        }
+    </style>
+    <script>
+        async function fetchQuestionsAndHandle() {
+            const response = await fetch('./test.json'); 
+            const data = await response.json();
+
+            let questions = data;
+            let checkedChoices = []; 
+            let solvedQuestions = 0;
+
+            function displayQuestion(index) {
+                let question = questions[index];
+
+                document.getElementById('question').innerText = `문제 ${question['문제번호']}: ${question['문제']}`;
+
+                let choices = question['선택지'];
+                let choiceList = document.getElementById('choices');
+                choiceList.innerHTML = '';
+                if (!Array.isArray(choices)) {
+                    choices = choices.split(','); 
+                }
+
+                choices.forEach((choice, idx) => {
+                    let listItem = document.createElement('li');
+                    let checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `choice${idx}`;
+                    checkbox.name = 'answer';
+                    checkbox.value = choice;
+                    let label = document.createElement('label');
+                    label.htmlFor = `choice${idx}`;
+                    label.appendChild(document.createTextNode(choice));
+                    listItem.appendChild(checkbox);
+                    listItem.appendChild(label);
+                    choiceList.appendChild(listItem);
+
+                    checkbox.addEventListener('change', function () {
+                        if (this.checked) {
+                            let otherCheckboxes = document.querySelectorAll('input[name="answer"]');
+                            otherCheckboxes.forEach(cb => {
+                                if (cb !== this) {
+                                    cb.checked = false;
+                                }
+                            });
+                            solvedQuestions++;
+                            updateQuestionStatus(solvedQuestions);
+                        }
+                    });
+                });
+            }
+
+            function checkAnswer(index) {
+                let question = questions[index];
+                let choices = question['선택지'];
+                let checked = [];
+
+                choices.forEach((choice, idx) => {
+                    let checkbox = document.getElementById(`choice${idx}`);
+                    if (checkbox.checked) {
+                        checked.push(choice);
+                    }
+                });
+
+                let answer = document.getElementById('answer');
+                if (checked.length === 0) {
+                    answer.innerText = question['정답']; 
+                    checkedChoices[index] = []; 
+                    return;
+                }
+
+                if (JSON.stringify(checked) === JSON.stringify([question['정답']])) {
+                    answer.innerText = '✅ 정답입니다!';
+                } else {
+                    answer.innerText = `❌ 틀렸습니다. 정답은 ${question['정답']}입니다.`;
+                }
+
+                checkedChoices[index] = checked; 
+            }
+
+            function updateQuestionStatus(solved) {
+                let remainingQuestions = questions.length - solved;
+                document.getElementById('solvedQuestions').innerText = `푼 문제: ${solved}`;
+                document.getElementById('remainingQuestions').innerText = `남은 문제: ${remainingQuestions}`;
+            }
+
+            document.getElementById('submit').addEventListener('click', function () {
+                if (currentIndex === questions.length - 1) {
+                    let isUnchecked = Array.from(document.querySelectorAll('input[name="answer"]')).every(input => !input.checked);
+                    if (isUnchecked) {
+                        document.getElementById('answer').innerText = '하나 이상의 선택지를 선택해야 합니다.';
+                        return;
+                    }
+                }
+                checkAnswer(currentIndex);
+            });
+
+            let currentIndex = 0;
+            displayQuestion(currentIndex);
+            updateQuestionStatus(solvedQuestions);
+
+            document.getElementById('next').addEventListener('click', function () {
+                currentIndex++;
+                if (currentIndex < questions.length) {
+                    displayQuestion(currentIndex);
+                    document.getElementById('answer').innerText = ''; 
+                    document.getElementById('result').innerText = ''; 
+                } else {
+                    alert('🐸 더 이상 문제가 없습니다.');
+                }
+            });
+
+            document.getElementById('submit').addEventListener('click', function () {
+                checkAnswer(currentIndex);
+                if (currentIndex === questions.length - 1) {
+                    let correctCount = checkedChoices.filter(choices => JSON.stringify(choices) === JSON.stringify([questions[checkedChoices.indexOf(choices)].정답])).length;
+                    let wrongCount = questions.length - correctCount;
+
+                    let result = document.getElementById('result');
+                    result.innerText = `😊 정답 수: ${correctCount}, 😢 틀린 수: ${wrongCount}`;
+
+                    let wrongQuestions = checkedChoices.map((choices, idx) => {
+                        if (JSON.stringify(choices) !== JSON.stringify([questions[idx].정답])) {
+                            return questions[idx].문제번호;
+                        }
+                    }).filter(Boolean);
+
+                    if (wrongQuestions.length > 0) {
+                        result.innerText += `\n✔ 틀린 문제 번호: ${wrongQuestions.join(', ')}`;
+                    }
+                }
+            });
+
+            document.getElementById('prev').addEventListener('click', function () {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    displayQuestion(currentIndex);
+                    document.getElementById('answer').innerText = ''; 
+                    document.getElementById('result').innerText = ''; 
+                } else {
+                    alert('🐸 첫 번째 문제입니다.');
+                }
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                fetchQuestionsAndHandle();
+                document.getElementById('prev').disabled = true; 
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchQuestionsAndHandle();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1 id="question"></h1>
+        <ul id="choices"></ul>
+        <div id="buttonContainer">
+            <button id="prev">⬅ 이전 문제</button>
+            <button id="submit">☑ 확인</button>
+            <button id="next">➡ 다음 문제</button>
+        </div>
+        <p id="answer"></p>
+        <div class="result" id="result"></div>
+        <div id="questionStatus">
+            <p id="solvedQuestions">푼 문제: 0</p>
+            <p id="remainingQuestions">📑 남은 문제: 0</p>
+        </div>
+    </div>
+</body>
+
+</html>

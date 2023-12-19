@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>네트워크</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .title {
+            font-size: 36px;
+            margin-bottom: 70px;  
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            justify-content: center; 
+        }
+
+        .square {
+            width: 200px;
+            height: 200px;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #000;
+            border-radius: 5px;
+            background-color: #fff;
+            transition: background-color 0.3s ease;
+        }
+
+        .square:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">📡네트워크</div>
+        <div class="grid">
+            <a href="./src/app/p5.html" class="square">5장</a>
+            <a href="./src/app/p6.html" class="square">6장</a>
+            <a href="./src/app/p7.html" class="square">7장</a>
+            <a href="./src/app/p8.html" class="square">8장</a>
+            <a href="./src/app/p9.html" class="square">9장</a>
+            <a href="./src/app/p10.html" class="square">10장</a>
+            <a href="./src/app/p11.html" class="square">11장</a>
+            <a href="./src/app/p12.html" class="square">12장</a>
+        </div>
+    </div>
+</body>
+</html>
