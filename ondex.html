@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #10222B;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #FFF;
+      overflow: hidden;
+    }
+    .video-container {
+      width: 640px;
+      height: 360px;
+      border: 5px solid #FFF;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+
+    .snowflake {
+      position: absolute;
+      display: block;
+      width: 5px;
+      height: 5px;
+      background-color: #FFF;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: snowfall linear infinite;
+      animation-duration: 10s;
+    }
+
+    @keyframes snowfall {
+      0% {
+        transform: translateY(-100vh);
+      }
+      100% {
+        transform: translateY(100vh);
+      }
+    }
+
+    .christmas-lights {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .christmas-light {
+      position: absolute;
+      width: 5px; 
+      height: 5px; 
+      border-radius: 50%;
+      animation: flicker 1s infinite alternate;
+    }
+    @keyframes flicker {
+      0% {
+        opacity: 0.3;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <h1>🎄 크리스마스</h1>
+  <div class="video-container">
+    <iframe id="youtube-video" width="640" height="360" src="https://www.youtube.com/embed/HJYetAS7cVs?autoplay=1" frameborder="0" allowfullscreen></iframe>
+  </div>
+  <div class="snowflake"></div>
+  <div class="christmas-lights"></div>
+  <a href="../.././test/test.html" style="position: absolute; bottom: 20px; right: 20px; background-color: #fff; padding: 10px 15px; border-radius: 5px; text-decoration: none; color: #10222B;">🐸</a>
+
+  <script>
+    const container = document.querySelector('body');
+    const snowflakeCount = 100; 
+    for (let i = 0; i < snowflakeCount; i++) {
+      const snowflake = document.createElement('div');
+      snowflake.className = 'snowflake';
+      snowflake.style.left = Math.random() * window.innerWidth + 'px';
+      snowflake.style.animationDuration = Math.random() * 5 + 5 + 's'; 
+      container.appendChild(snowflake);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const video = document.getElementById('youtube-video');
+      const src = video.src;
+      video.src = src + '&autoplay=1';
+    });
+
+    const lightsContainer = document.querySelector('.christmas-lights');
+    const lightCount = 200; 
+    const usedPositions = []; 
+    for (let i = 0; i < lightCount; i++) {
+      const light = document.createElement('div');
+      light.className = 'christmas-light';
+      let leftPos, topPos;
+      do {
+        leftPos = Math.random() * window.innerWidth; 
+        topPos = Math.random() * window.innerHeight; 
+      } while (isPositionUsed(leftPos, topPos)); 
+      light.style.left = leftPos + 'px';
+      light.style.top = topPos + 'px';
+      light.style.backgroundColor = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`; 
+      lightsContainer.appendChild(light);
+      usedPositions.push({ left: leftPos, top: topPos });
+    }
+
+
+    function isPositionUsed(left, top) {
+      for (const pos of usedPositions) {
+        if (Math.abs(left - pos.left) < 30 && Math.abs(top - pos.top) < 30) { 
+          return true;
+        }
+      }
+      return false;
+    }
+  </script>
+</body>
+</html>
